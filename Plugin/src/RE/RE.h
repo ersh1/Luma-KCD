@@ -1,0 +1,222 @@
+#pragma once
+
+#include <d3d11_1.h>
+
+namespace RE
+{
+	class CTexture;
+
+	enum ETEX_Format : uint8_t
+	{
+		eTF_Unknown = 0x0,
+		eTF_R8G8B8A8S = 0x1,
+		eTF_R8G8B8A8 = 0x2,
+		eTF_A8 = 0x4,
+		eTF_R8 = 0x5,
+		eTF_R8S = 0x6,
+		eTF_R16 = 0x7,
+		eTF_R16F = 0x8,
+		eTF_R32F = 0x9,
+		eTF_R8G8 = 0xA,
+		eTF_R8G8S = 0xB,
+		eTF_R16G16 = 0xC,
+		eTF_R16G16S = 0xD,
+		eTF_R16G16F = 0xE,
+		eTF_R11G11B10F = 0xF,
+		eTF_R10G10B10A2 = 0x10,
+		eTF_R16G16B16A16 = 0x11,
+		eTF_R16G16B16A16S = 0x12,
+		eTF_R16G16B16A16F = 0x13,
+		eTF_R32G32B32A32F = 0x14,
+		eTF_CTX1 = 0x15,
+		eTF_BC1 = 0x16,
+		eTF_BC2 = 0x17,
+		eTF_BC3 = 0x18,
+		eTF_BC4U = 0x19,
+		eTF_BC4S = 0x1A,
+		eTF_BC5U = 0x1B,
+		eTF_BC5S = 0x1C,
+		eTF_BC6UH = 0x1D,
+		eTF_BC6SH = 0x1E,
+		eTF_BC7 = 0x1F,
+		eTF_R9G9B9E5 = 0x20,
+		eTF_D16 = 0x21,
+		eTF_D24S8 = 0x22,
+		eTF_D32F = 0x23,
+		eTF_D32FS8 = 0x24,
+		eTF_B5G6R5 = 0x25,
+		eTF_B5G5R5 = 0x26,
+		eTF_B4G4R4A4 = 0x27,
+		eTF_EAC_R11 = 0x28,
+		eTF_EAC_RG11 = 0x29,
+		eTF_ETC2 = 0x2A,
+		eTF_ETC2A = 0x2B,
+		eTF_A8L8 = 0x2C,
+		eTF_L8 = 0x2D,
+		eTF_L8V8U8 = 0x2E,
+		eTF_B8G8R8 = 0x2F,
+		eTF_L8V8U8X8 = 0x30,
+		eTF_B8G8R8X8 = 0x31,
+		eTF_B8G8R8A8 = 0x32,
+		eTF_PVRTC2 = 0x33,
+		eTF_PVRTC4 = 0x34,
+		eTF_ASTC_4x4 = 0x35,
+		eTF_ASTC_5x4 = 0x36,
+		eTF_ASTC_5x5 = 0x37,
+		eTF_ASTC_6x5 = 0x38,
+		eTF_ASTC_6x6 = 0x39,
+		eTF_ASTC_8x5 = 0x3A,
+		eTF_ASTC_8x6 = 0x3B,
+		eTF_ASTC_8x8 = 0x3C,
+		eTF_ASTC_10x5 = 0x3D,
+		eTF_ASTC_10x6 = 0x3E,
+		eTF_ASTC_10x8 = 0x3F,
+		eTF_ASTC_10x10 = 0x40,
+		eTF_ASTC_12x10 = 0x41,
+		eTF_ASTC_12x12 = 0x42,
+		eTF_R16U = 0x43,
+		eTF_R16G16U = 0x44,
+		eTF_R10G10B10A2UI = 0x45,
+		eTF_MaxFormat = 0x46,
+	};
+
+	enum ETEX_Type : uint8_t
+	{
+		eTT_1D = 0,
+		eTT_2D,
+		eTT_3D,
+		eTT_Cube,
+		eTT_AutoCube,
+		eTT_Auto2D,
+		eTT_User,
+		eTT_NearestCube,
+		eTT_MaxTexType,
+	};
+
+	class CD3D9Renderer
+	{
+	public:
+		virtual void Unk00();
+		virtual void Unk01();
+		virtual void Unk02();
+		virtual void Unk03();
+		virtual void Unk04();
+		virtual void Unk05();
+		virtual void Unk06();
+		virtual void Unk07();
+		virtual void Unk08();
+		virtual void Unk09();
+		virtual void Unk0A();
+		virtual void Unk0B();
+		virtual void Unk0C();
+		virtual void Unk0D();
+		virtual void Unk0E();
+		virtual void Unk0F();
+		virtual void Unk10();
+		virtual void Unk11();
+		virtual void Unk12();
+		virtual void Unk13();
+		virtual void Unk14();
+		virtual void Unk15();
+		virtual void Unk16();
+		virtual void Unk17();
+		virtual void Unk18();
+		virtual void Unk19();
+		virtual void Unk1A();
+		virtual void Unk1B();
+		virtual void Unk1C();
+		virtual void Unk1D();
+		virtual void Unk1E();
+		virtual void Unk1F();
+		virtual void Unk20();
+		virtual void Unk21();
+		virtual void Unk22();
+		virtual void Unk23();
+		virtual void Unk24();
+		virtual void Unk25();
+		virtual void Unk26();
+		virtual void Unk27();
+		virtual void Unk28();
+		virtual void Unk29();
+		virtual void Unk2A();
+		virtual void Unk2B();
+		virtual void Unk2C();
+		virtual void Unk2D();
+		virtual void Unk2E();
+		virtual void Unk2F();
+		virtual void Unk30();
+		virtual void Unk31();
+		virtual void Unk32();
+		virtual void Unk33();
+		virtual void Unk34();
+		virtual void Unk35();
+		virtual void Unk36();
+		virtual void Unk37();
+		virtual void Unk38();
+		virtual void Unk39();
+		virtual void Unk3A();
+		virtual void Unk3B();
+		virtual void Unk3C();
+		virtual void Unk3D();
+		virtual void Unk3E();
+		virtual void Unk3F();
+		virtual void Unk40();
+		virtual void Unk41();
+		virtual void Unk42();
+		virtual void Unk43();
+		virtual void Unk44();
+		virtual uint32_t GetHeight();
+		virtual uint32_t GetWidth();
+		virtual void Unk47();
+		virtual void Unk48();
+		virtual void Unk49();
+		virtual void Unk4A();
+		virtual void Unk4B();
+		virtual void Unk4C();
+		virtual void Unk4D();
+		virtual void Unk4E();
+		virtual void Unk4F();
+		//...
+
+		// members
+		uint64_t unk00[0x4955];
+		ID3D11RenderTargetView* m_pBackBuffer; // 0x24AB0
+		uint64_t unk24AB8;
+		uint64_t unk24AC0;
+		ID3D11DepthStencilView* m_pNativeZSurface; // 0x24AC8
+		uint64_t unk24AD0[0x8A9];
+		volatile int32_t m_nAsyncDeviceState; //0x29018
+		uint64_t         unk29020[0x11E];
+		ID3D11DeviceContext1* m_pDeviceContext; //0x29910
+	};
+	static_assert(offsetof(CD3D9Renderer, m_pBackBuffer) == 0x24AB0);
+	static_assert(offsetof(CD3D9Renderer, m_pNativeZSurface) == 0x24AC8);
+	static_assert(offsetof(CD3D9Renderer, m_nAsyncDeviceState) == 0x29018);
+	static_assert(offsetof(CD3D9Renderer, m_pDeviceContext) == 0x29910);
+
+	struct SD3DSurface;
+
+	struct DeviceInfo
+	{
+		IDXGIFactory1*        m_pFactory;
+		IDXGIAdapter*         m_pAdapter;
+		IDXGIOutput*          m_pOutput;
+		ID3D11Device*         m_pDevice;
+		ID3D11DeviceContext1* m_pContext;
+		IDXGISwapChain*       m_pSwapChain;
+		unsigned int          m_pCurrentBackBufferRTVIndex;
+		DXGI_ADAPTER_DESC1    m_adapterDesc;
+		DXGI_SWAP_CHAIN_DESC  m_swapChainDesc;
+		DXGI_RATIONAL         m_refreshRate;
+		DXGI_RATIONAL         m_desktopRefreshRate;
+		D3D_DRIVER_TYPE       m_driverType;
+		unsigned int          m_creationFlags;
+		D3D_FEATURE_LEVEL     m_featureLevel;
+		DXGI_FORMAT           m_autoDepthStencilFmt;
+		unsigned int          m_outputIndex;
+		unsigned int          m_syncInterval;
+		unsigned int          m_presentFlags;
+		bool                  m_activated;
+		bool                  m_activatedMT;
+	};
+}

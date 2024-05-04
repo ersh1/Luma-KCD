@@ -26,8 +26,8 @@ namespace Hooks
 				dku::Hook::WriteImm(Offsets::baseAddress + 0x802B8A, format);   // $BackBufferScaledTemp_d4
 				dku::Hook::WriteImm(Offsets::baseAddress + 0x802BBD, format);   // $BackBufferScaled_d8
 
-				//dku::Hook::WriteImm(Offsets::baseAddress + 0xB125E8, format);   // $BackBuffer
-				//dku::Hook::WriteImm(Offsets::baseAddress + 0xB1259A, format);   // $BackBuffer
+				dku::Hook::WriteImm(Offsets::baseAddress + 0xB125E8, format);   // $BackBuffer
+				dku::Hook::WriteImm(Offsets::baseAddress + 0xB1259A, format);   // $BackBuffer
 				
 				dku::Hook::WriteImm(Offsets::baseAddress + 0x8029B2, format);   // $PrevBackBuffer0
 				dku::Hook::WriteImm(Offsets::baseAddress + 0x8029DE, format);   // $PrevBackBuffer1
@@ -163,6 +163,53 @@ namespace Hooks
 					auto hook = dku::Hook::AddASMPatch(Offsets::baseAddress + 0x7FDC7C, offset, &patch);
 					hook->Enable();
 				}
+
+				// Use NormalCopyTarget instead of BackBuffer (for copy)
+				{
+					struct Patch : Xbyak::CodeGenerator
+					{
+						Patch(uintptr_t a_addr)
+						{
+							//// call our function
+							mov(rax, a_addr);
+							call(rax);
+						}
+					};
+
+					Patch patch(reinterpret_cast<uintptr_t>(GetNormalCopyTargetRT));
+					patch.ready();
+
+					auto offset = std::make_pair(0x6C, 0x73);
+					auto hook = dku::Hook::AddASMPatch(Offsets::baseAddress + 0x2BF4E8, offset, &patch);  // FX_DeferredDecals
+					hook->Enable();
+				}
+
+				// Use NormalCopyTarget instead of BackBuffer (for read)
+				{
+					struct Patch : Xbyak::CodeGenerator
+					{
+						Patch(uintptr_t a_addr)
+						{
+							//// call our function
+							mov(rax, a_addr);
+							call(rax);
+							mov(rcx, rax);
+						}
+					};
+
+					Patch patch(reinterpret_cast<uintptr_t>(GetNormalCopyTargetRT));
+					patch.ready();
+
+					auto offset = std::make_pair(0x69B, 0x6A2);
+					auto hook = dku::Hook::AddASMPatch(Offsets::baseAddress + 0x4666C4, offset, &patch);  // CDeferredShading::DeferredDecalPass
+					hook->Enable();
+				}
+			}
+
+			// Push our parameters
+			{
+				// Hook last FXSetPSFloat in CPostAA::RenderComposites
+				_Hook_FXSetPSFloat = dku::Hook::write_call(Offsets::baseAddress + 0x7FDF74, Hook_FXSetPSFloat);
 			}
 		}
 
@@ -172,17 +219,21 @@ namespace Hooks
 		static bool          Hook_CreateRenderTarget(const char* a_szTexName, RE::CTexture*& a_pTex, int a_iWidth, int a_iHeight, bool a_bUseAlpha, bool a_bMipMaps, RE::ETEX_Format a_eTF, int a_nCustomID, int a_nFlags);
 		static RE::CTexture* Hook_CreateTextureObject(const char* a_name, uint32_t a_nWidth, uint32_t a_nHeight, int a_nDepth, RE::ETEX_Type a_eTT, uint32_t a_nFlags, RE::ETEX_Format a_eTF, int a_nCustomID);
 		static bool          Hook_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::CTexture* a_pTarget, RE::SD3DSurface* a_pDepthTarget, bool a_bClearOnResolve, int a_nCMSide, bool a_bScreenVP, uint32_t a_nTileCount);
+		static bool          Hook_FXSetPSFloat(RE::CShader* a_this, const RE::CCryNameR& a_nameParam, RE::Vec4* a_fParams, int a_nParams);
 
 		static inline std::add_pointer_t<decltype(Hook_FlashRenderInternal)> _Hook_FlashRenderInternal;
 		static inline std::add_pointer_t<decltype(Hook_CreateDevice)>        _Hook_CreateDevice;
 		static inline std::add_pointer_t<decltype(Hook_CreateRenderTarget)> _Hook_CreateRenderTarget;
 		static inline std::add_pointer_t<decltype(Hook_CreateTextureObject)> _Hook_CreateTextureObject;
 		static inline std::add_pointer_t<decltype(Hook_FX_PushRenderTarget)> _Hook_FX_PushRenderTarget;
+		static inline std::add_pointer_t<decltype(Hook_FXSetPSFloat)>        _Hook_FXSetPSFloat;
 
 		static uintptr_t            GetTonemapTargetRT() { return reinterpret_cast<uintptr_t>(ptexTonemapTarget); }
 		static uintptr_t            GetPostAATargetRT() { return reinterpret_cast<uintptr_t>(ptexPostAATarget); }
+		static uintptr_t            GetNormalCopyTargetRT() { return reinterpret_cast<uintptr_t>(ptexNormalCopyTarget); }
 		static inline RE::CTexture* ptexTonemapTarget;
 		static inline RE::CTexture* ptexPostAATarget;
+		static inline RE::CTexture* ptexNormalCopyTarget;
 	};
 
 	void Install();

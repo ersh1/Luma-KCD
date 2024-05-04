@@ -5,6 +5,7 @@
 namespace RE
 {
 	class CTexture;
+	class CShader;
 
 	enum ETEX_Format : uint8_t
 	{
@@ -218,5 +219,27 @@ namespace RE
 		unsigned int          m_presentFlags;
 		bool                  m_activated;
 		bool                  m_activatedMT;
+	};
+
+	struct Vec4
+	{
+		float x;
+		float y;
+		float z;
+		float w;
+	};
+
+	class CCryNameR
+	{
+	public:
+		CCryNameR()
+		{
+			m_str = nullptr;
+		}
+
+		CCryNameR(const char* s);
+
+	private:
+		const char* m_str;
 	};
 }

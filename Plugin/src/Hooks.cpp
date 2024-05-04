@@ -1,4 +1,7 @@
 #include "Hooks.h"
+
+#include "Settings.h"
+
 #include <dxgi1_4.h>
 
 namespace Hooks
@@ -36,6 +39,9 @@ namespace Hooks
 		swapChain3->SetColorSpace1(colorSpace);
 		swapChain3->Release();
 
+		// good moment late enough to register reshade settings
+		Settings::Main::GetSingleton()->RegisterReshadeOverlay();
+
 		return bReturn;
 	}
 
@@ -46,6 +52,7 @@ namespace Hooks
 		// add ours
 		_Hook_CreateRenderTarget("$TonemapTarget", ptexTonemapTarget, a_iWidth, a_iHeight, a_bUseAlpha, a_bMipMaps, RE::eTF_R16G16B16A16F, -1, a_nFlags);
 		_Hook_CreateRenderTarget("$PostAATarget", ptexPostAATarget, a_iWidth, a_iHeight, a_bUseAlpha, a_bMipMaps, RE::eTF_R16G16B16A16F, -1, a_nFlags);
+		_Hook_CreateRenderTarget("$NormalCopyTarget", ptexNormalCopyTarget, a_iWidth, a_iHeight, a_bUseAlpha, a_bMipMaps, RE::eTF_R8G8B8A8, -1, a_nFlags);
 
 		return bReturn;
 	}
@@ -57,6 +64,7 @@ namespace Hooks
 		// add ours
 		ptexTonemapTarget = _Hook_CreateTextureObject("$TonemapTarget", a_nWidth, a_nHeight, a_nDepth, a_eTT, a_nFlags, RE::eTF_R16G16B16A16F, -1);
 		ptexPostAATarget = _Hook_CreateTextureObject("$PostAATarget", a_nWidth, a_nHeight, a_nDepth, a_eTT, a_nFlags, RE::eTF_R16G16B16A16F, -1);
+		ptexNormalCopyTarget = _Hook_CreateTextureObject("$NormalCopyTarget", a_nWidth, a_nHeight, a_nDepth, a_eTT, a_nFlags, RE::eTF_R8G8B8A8, -1);
 
 		return pTex;
 	}
@@ -65,6 +73,26 @@ namespace Hooks
 	{
 		// replace with ours
 		return _Hook_FX_PushRenderTarget(a_this, a_nTarget, ptexTonemapTarget, a_pDepthTarget, a_bClearOnResolve, a_nCMSide, a_bScreenVP, a_nTileCount);
+	}
+
+	bool Hooks::Hook_FXSetPSFloat(RE::CShader* a_this, const RE::CCryNameR& a_nameParam, RE::Vec4* a_fParams, int a_nParams)
+	{
+		// run original
+		_Hook_FXSetPSFloat(a_this, a_nameParam, a_fParams, a_nParams);
+
+		// run with ours
+		static RE::CCryNameR lumaParamsName { "LumaTonemappingParams" };
+
+		const auto settings = Settings::Main::GetSingleton();
+		float fMaxLuminance = settings->PeakBrightness.GetValue();
+		float fMaxLuminanceHalf = fMaxLuminance * 0.5f;
+		float fPaperwhite = settings->GamePaperWhite.GetValue();
+		float fExtendGamut = settings->ExtendGamut.GetValue();
+
+		RE::Vec4 lumaParams = { fMaxLuminance, fMaxLuminanceHalf, fPaperwhite, fExtendGamut };
+
+		bool bSuccess = _Hook_FXSetPSFloat(a_this, lumaParamsName, &lumaParams, 1);
+		return bSuccess;
 	}
 
 	void Install()

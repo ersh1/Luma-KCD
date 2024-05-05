@@ -4,6 +4,12 @@
 
 #include <dxgi1_4.h>
 
+static const float PQ_m1 =  0.1593017578125f;
+static const float PQ_m2 = 78.84375f;
+static const float PQ_c1 =  0.8359375f;
+static const float PQ_c2 = 18.8515625f;
+static const float PQ_c3 = 18.6875f;
+
 namespace Hooks
 {
 	ID3D11DeviceContext* GetDeviceContext(RE::CD3D9Renderer* a_renderer)
@@ -75,6 +81,16 @@ namespace Hooks
 		return _Hook_FX_PushRenderTarget(a_this, a_nTarget, ptexTonemapTarget, a_pDepthTarget, a_bClearOnResolve, a_nCMSide, a_bScreenVP, a_nTileCount);
 	}
 
+	float NitsToPQ(float Y)
+	{
+		Y = std::powf(Y / 10000.f, PQ_m1);
+
+		// E'
+		return std::powf((PQ_c1 + PQ_c2 * Y)
+		               / (  1.f + PQ_c3 * Y)
+		       , PQ_m2);
+	}
+
 	bool Hooks::Hook_FXSetPSFloat(RE::CShader* a_this, const RE::CCryNameR& a_nameParam, RE::Vec4* a_fParams, int a_nParams)
 	{
 		// run original
@@ -86,6 +102,8 @@ namespace Hooks
 		const auto settings = Settings::Main::GetSingleton();
 		float fMaxLuminance = settings->PeakBrightness.GetValue();
 		float fMaxLuminanceHalf = fMaxLuminance * 0.5f;
+		fMaxLuminance = NitsToPQ(fMaxLuminance);
+		fMaxLuminanceHalf = NitsToPQ(fMaxLuminanceHalf);
 		float fPaperwhite = settings->GamePaperWhite.GetValue();
 		float fExtendGamut = settings->ExtendGamut.GetValue();
 

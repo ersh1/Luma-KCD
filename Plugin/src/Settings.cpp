@@ -36,6 +36,7 @@ namespace Settings
 			config.Bind(GamePaperWhite.value, GamePaperWhite.defaultValue);
 			config.Bind(UIPaperWhite.value, UIPaperWhite.defaultValue);
 			config.Bind(ExtendGamut.value, ExtendGamut.defaultValue);
+			config.Bind(ExtendGamutTarget.value, ExtendGamutTarget.defaultValue);
 		});
 
 		config.Load();
@@ -134,5 +135,6 @@ namespace Settings
 		DrawReshadeIntSlider(GamePaperWhite);
 		DrawReshadeIntSlider(UIPaperWhite);
 		DrawReshadeFloatSlider(ExtendGamut);
+		DrawReshadeIntSlider(ExtendGamutTarget);
     }
 }

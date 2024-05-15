@@ -96,15 +96,26 @@ namespace Settings
 			500
 		};
 		FloatSlider ExtendGamut{
-			"Extend Gamut",
-			"Shifts bright saturated colors from SDR to HDR, essentially acting as a \"smart\" saturation."
+			"HDR Saturation",
+			"Perceptually increases the saturation to a max of DCI-P3 or BT.2020 gamut."
 				"\n"
-				"\nNeutral at 0\%.",
+				"\nNeutral at 0\%."
+				"\n"
+				"\nUses darktable UCS as colour space to perform the increase.", //this is needed to follow the license requirements
 			"ExtendGamut", "HDR",
-			33.f,
+			10.f,
 			0.f,
 			100.f,
 			"%"
+		};
+		IntSlider ExtendGamutTarget{
+			"HDR Saturation Type",
+			"0: DCI-P3 target\n"
+			"1: BT.2020 target",
+			"ExtendGamutTarget", "HDR",
+			0,
+			0,
+			1
 		};
 
 		void RegisterReshadeOverlay();

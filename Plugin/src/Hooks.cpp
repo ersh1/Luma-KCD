@@ -4,6 +4,11 @@
 
 #include <dxgi1_4.h>
 
+static const float MaxGamutExpansion[2] =
+{
+	0.0037935f,
+	0.0102255f
+};
 
 namespace Hooks
 {
@@ -101,6 +106,11 @@ namespace Hooks
 		fMaxLuminanceHalf = NitsToPQ(fMaxLuminanceHalf);
 		float fPaperwhite = settings->GamePaperWhite.GetValue();
 		float fExtendGamut = settings->ExtendGamut.GetValue();
+		int32_t iExtendGamutTarget = settings->ExtendGamutTarget.GetValue();
+		fExtendGamut *= MaxGamutExpansion[iExtendGamutTarget];
+		fExtendGamut += 1.f;
+		// store gamut target as sign
+		fExtendGamut *= float(iExtendGamutTarget * 2 - 1);
 
 		RE::Vec4 lumaParams = { fMaxLuminance, fMaxLuminanceHalf, fPaperwhite, fExtendGamut };
 

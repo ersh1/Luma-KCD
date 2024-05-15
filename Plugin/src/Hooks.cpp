@@ -4,11 +4,6 @@
 
 #include <dxgi1_4.h>
 
-static const float PQ_m1 =  0.1593017578125f;
-static const float PQ_m2 = 78.84375f;
-static const float PQ_c1 =  0.8359375f;
-static const float PQ_c2 = 18.8515625f;
-static const float PQ_c3 = 18.6875f;
 
 namespace Hooks
 {
@@ -83,12 +78,12 @@ namespace Hooks
 
 	float NitsToPQ(float Y)
 	{
-		Y = std::powf(Y / 10000.f, PQ_m1);
+		Y = std::powf(Y / 10000.f, 0.1593017578125f);
 
 		// E'
-		return std::powf((PQ_c1 + PQ_c2 * Y)
-		               / (  1.f + PQ_c3 * Y)
-		       , PQ_m2);
+		return std::powf((0.8359375f + 18.8515625f * Y)
+		               / (1.f        + 18.6875f    * Y)
+		       , 78.84375f);
 	}
 
 	bool Hooks::Hook_FXSetPSFloat(RE::CShader* a_this, const RE::CCryNameR& a_nameParam, RE::Vec4* a_fParams, int a_nParams)

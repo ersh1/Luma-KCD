@@ -118,6 +118,39 @@ namespace Hooks
 		return bSuccess;
 	}
 
+	bool Hooks::Hook_mfParseParamComp(void* a_this, int comp, RE::SCGParam* pCurParam, const char* szSemantic, char* params, const char* szAnnotations, void* FXParams, void* ef, uint32_t nParamFlags, RE::EHWShaderClass eSHClass, bool bExpressionOperand)
+	{
+		// run original
+		bool bResult = _Hook_mfParseParamComp(a_this, comp, pCurParam, szSemantic, params, szAnnotations, FXParams, ef, nParamFlags, eSHClass, bExpressionOperand);
+
+		// our param will fail to parse fully because there's no relevant entry in the sParams array, so finish it up manually
+		if (!bResult && pCurParam && stricmp (szSemantic, "PB_SFLumaUILuminance") == 0) {
+			pCurParam->m_eCGParamType = RE::ECGParam::ECGP_LumaUILuminance;
+			return true; 
+		}
+
+		return bResult;
+	}
+
+	bool Hooks::Hook_SetShaderParameters(float*& pSrc, RE::ECGParam paramType)
+	{
+		// run original
+		bool bResult = _Hook_SetShaderParameters(pSrc, paramType);
+
+		// our enum value will fail to be recognized here; handle it manually
+		if (!bResult && paramType == RE::ECGParam::ECGP_LumaUILuminance) {
+			const auto settings = Settings::Main::GetSingleton();
+			float      fUILuminance = settings->UIPaperWhite.GetValue();
+			pSrc[0] = fUILuminance / 80.f;
+			pSrc[1] = 0.f;
+			pSrc[2] = 0.f;
+			pSrc[3] = 0.f;
+			return true;
+		}
+
+		return bResult;
+	}
+
 	void Install()
 	{
 		Patches::Patch();

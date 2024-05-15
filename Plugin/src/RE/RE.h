@@ -242,4 +242,49 @@ namespace RE
 	private:
 		const char* m_str;
 	};
+
+	enum EHWShaderClass
+	{
+		eHWSC_Vertex = 0,
+		eHWSC_Pixel = 1,
+		eHWSC_Geometry = 2,
+		eHWSC_Compute = 3,
+		eHWSC_Domain = 4,
+		eHWSC_Hull = 5,
+		eHWSC_Num = 6
+	};
+
+	enum ECGParam
+	{
+		ECGP_Unknown = 0,
+
+		// ...
+
+		ECGP_LumaUILuminance = 0xFF
+	};
+
+	struct SParamDB
+	{
+		const char* szName = nullptr;
+		const char* szAliasName = nullptr;
+		ECGParam    eParamType = ECGParam::ECGP_Unknown;
+		uint32_t    nFlags = 0;
+		void*       ParserFunc = nullptr;
+	};
+
+	struct SCGBind
+	{
+		CCryNameR m_Name;
+		uint32_t  m_Flags;
+		int16_t   m_dwBind;
+		int16_t   m_dwCBufSlot;
+		int32_t   m_nParameters;
+	};
+
+	struct SCGParam : SCGBind
+	{
+		ECGParam  m_eCGParamType;
+		void*     m_pData;
+		uintptr_t m_nID;
+	};
 }

@@ -103,7 +103,7 @@ namespace Hooks
 					{
 						Patch(uintptr_t a_addr)
 						{
-							//// call our function
+							// call our function
 							mov(rax, a_addr);
 							call(rax);
 							mov(rdi, rax);
@@ -126,7 +126,7 @@ namespace Hooks
 						{
 							push(rax);
 
-							//// call our function
+							// call our function
 							mov(rax, a_addr);
 							call(rax);
 							mov(rbx, rax);
@@ -149,7 +149,7 @@ namespace Hooks
 					{
 						Patch(uintptr_t a_addr)
 						{
-							//// call our function
+							// call our function
 							mov(rax, a_addr);
 							call(rax);
 							mov(rbx, rax);
@@ -170,7 +170,7 @@ namespace Hooks
 					{
 						Patch(uintptr_t a_addr)
 						{
-							//// call our function
+							// call our function
 							mov(rax, a_addr);
 							call(rax);
 						}
@@ -190,7 +190,7 @@ namespace Hooks
 					{
 						Patch(uintptr_t a_addr)
 						{
-							//// call our function
+							// call our function
 							mov(rax, a_addr);
 							call(rax);
 							mov(rcx, rax);
@@ -208,8 +208,24 @@ namespace Hooks
 
 			// Push our parameters
 			{
-				// Hook last FXSetPSFloat in CPostAA::RenderComposites
+				// Hook last FXSetPSFloat in CPostAA::RenderComposites to call it again pushing our params
 				_Hook_FXSetPSFloat = dku::Hook::write_call(Offsets::baseAddress + 0x7FDF74, Hook_FXSetPSFloat);
+			}
+
+			// UI shader
+			{
+				// Hook shader parsing (CShaderMan::mfParseParamComp) so we inject our own enum value into m_eCGParamType so we can pick it up in a later hook
+				// We're not emplacing a new value into the static SParamDB sParams array because there's not enough empty space at the end. This is much simpler.
+				{
+					_Hook_mfParseParamComp = dku::Hook::write_call(Offsets::baseAddress + 0x67DEDD, Hook_mfParseParamComp);
+				}
+
+				// CHWShader_D3D::mfSetParameters checks the enum in a switch statement, and on a default case it runs CSvoRenderer::SetShaderParameters that further checks the enum.
+				// We'll end up there as our enum value is not in the switch statement.
+				// We hook this function as it's a very convenient clean hook to inject our parameter.
+				{
+					_Hook_SetShaderParameters = dku::Hook::write_call(Offsets::baseAddress + 0x550AFE, Hook_SetShaderParameters);
+				}
 			}
 		}
 
@@ -220,6 +236,8 @@ namespace Hooks
 		static RE::CTexture* Hook_CreateTextureObject(const char* a_name, uint32_t a_nWidth, uint32_t a_nHeight, int a_nDepth, RE::ETEX_Type a_eTT, uint32_t a_nFlags, RE::ETEX_Format a_eTF, int a_nCustomID);
 		static bool          Hook_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::CTexture* a_pTarget, RE::SD3DSurface* a_pDepthTarget, bool a_bClearOnResolve, int a_nCMSide, bool a_bScreenVP, uint32_t a_nTileCount);
 		static bool          Hook_FXSetPSFloat(RE::CShader* a_this, const RE::CCryNameR& a_nameParam, RE::Vec4* a_fParams, int a_nParams);
+		static bool          Hook_mfParseParamComp(void* a_this, int comp, RE::SCGParam* pCurParam, const char* szSemantic, char* params, const char* szAnnotations, void* FXParams, void* ef, uint32_t nParamFlags, RE::EHWShaderClass eSHClass, bool bExpressionOperand);
+		static bool          Hook_SetShaderParameters(float*& pSrc, RE::ECGParam paramType);
 
 		static inline std::add_pointer_t<decltype(Hook_FlashRenderInternal)> _Hook_FlashRenderInternal;
 		static inline std::add_pointer_t<decltype(Hook_CreateDevice)>        _Hook_CreateDevice;
@@ -227,6 +245,8 @@ namespace Hooks
 		static inline std::add_pointer_t<decltype(Hook_CreateTextureObject)> _Hook_CreateTextureObject;
 		static inline std::add_pointer_t<decltype(Hook_FX_PushRenderTarget)> _Hook_FX_PushRenderTarget;
 		static inline std::add_pointer_t<decltype(Hook_FXSetPSFloat)>        _Hook_FXSetPSFloat;
+		static inline std::add_pointer_t<decltype(Hook_mfParseParamComp)>    _Hook_mfParseParamComp;
+		static inline std::add_pointer_t<decltype(Hook_SetShaderParameters)> _Hook_SetShaderParameters;
 
 		static uintptr_t            GetTonemapTargetRT() { return reinterpret_cast<uintptr_t>(ptexTonemapTarget); }
 		static uintptr_t            GetPostAATargetRT() { return reinterpret_cast<uintptr_t>(ptexPostAATarget); }

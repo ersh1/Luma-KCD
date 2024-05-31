@@ -140,7 +140,7 @@ namespace Hooks
 		// our enum value will fail to be recognized here; handle it manually
 		if (!bResult && paramType == RE::ECGParam::ECGP_LumaUILuminance) {
 			const auto settings = Settings::Main::GetSingleton();
-			float      fUILuminance = settings->UIPaperWhite.GetValue();
+			float      fUILuminance = settings->UILuminance.GetValue();
 			pSrc[0] = fUILuminance / 80.f;
 			pSrc[1] = 0.f;
 			pSrc[2] = 0.f;

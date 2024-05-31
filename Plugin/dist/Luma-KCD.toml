@@ -2,5 +2,5 @@
 ExtendGamut = 10.0
 GamePaperWhite = 203
 PeakBrightness = 1000
-UIPaperWhite = 203
+UILuminance = 203
 ExtendGamutTarget = 0

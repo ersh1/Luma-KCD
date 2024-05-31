@@ -84,13 +84,13 @@ namespace Settings
 			80,
 			500
 		};
-		IntSlider UIPaperWhite{
-			"UI Paper White",
+		IntSlider UILuminance{
+			"UI Luminance",
 			"Sets the user-interface brightness in HDR modes."
 				"\nThis setting represents the brightness of UI elements."
 				"\n"
 				"\nThe default value is 203.",
-			"UIPaperWhite", "HDR",
+			"UILuminance", "HDR",
 			203, // ITU reference default is 203
 			80,
 			500

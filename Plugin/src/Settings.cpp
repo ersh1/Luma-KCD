@@ -34,7 +34,7 @@ namespace Settings
 		std::call_once(ConfigInit, [&]() {
 			config.Bind(PeakBrightness.value, PeakBrightness.defaultValue);
 			config.Bind(GamePaperWhite.value, GamePaperWhite.defaultValue);
-			config.Bind(UIPaperWhite.value, UIPaperWhite.defaultValue);
+			config.Bind(UILuminance.value, UILuminance.defaultValue);
 			config.Bind(ExtendGamut.value, ExtendGamut.defaultValue);
 			config.Bind(ExtendGamutTarget.value, ExtendGamutTarget.defaultValue);
 		});
@@ -133,7 +133,7 @@ namespace Settings
 
 		DrawReshadeIntSlider(PeakBrightness);
 		DrawReshadeIntSlider(GamePaperWhite);
-		DrawReshadeIntSlider(UIPaperWhite);
+		DrawReshadeIntSlider(UILuminance);
 		DrawReshadeFloatSlider(ExtendGamut);
 		DrawReshadeIntSlider(ExtendGamutTarget);
     }

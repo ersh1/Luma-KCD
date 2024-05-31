@@ -100,11 +100,21 @@ namespace Hooks
 		static RE::CCryNameR lumaParamsName { "LumaTonemappingParams" };
 
 		const auto settings = Settings::Main::GetSingleton();
+
+		// max luminance
 		float fMaxLuminance = settings->PeakBrightness.GetValue();
 		float fMaxLuminanceHalf = fMaxLuminance * 0.5f;
 		fMaxLuminance = NitsToPQ(fMaxLuminance);
 		fMaxLuminanceHalf = NitsToPQ(fMaxLuminanceHalf);
-		float fPaperwhite = settings->GamePaperWhite.GetValue();
+
+		// game paperwhite
+		RE::HDRSetupParams hdrParams;
+		Offsets::C3DEngine_GetHDRSetupParams(nullptr, hdrParams);
+
+		float fPaperWhite = settings->GamePaperWhite.GetValue();
+		fPaperWhite /= std::powf(10.f, 0.034607309f + 0.7577371f * log10(hdrParams.HDRFilmCurve.w * 203.f));
+
+		// extend gamut
 		float fExtendGamut = settings->ExtendGamut.GetValue();
 		int32_t iExtendGamutTarget = settings->ExtendGamutTarget.GetValue();
 		fExtendGamut *= MaxGamutExpansion[iExtendGamutTarget];
@@ -112,7 +122,7 @@ namespace Hooks
 		// store gamut target as sign
 		fExtendGamut *= float(iExtendGamutTarget * 2 - 1);
 
-		RE::Vec4 lumaParams = { fMaxLuminance, fMaxLuminanceHalf, fPaperwhite, fExtendGamut };
+		RE::Vec4 lumaParams = { fMaxLuminance, fMaxLuminanceHalf, fPaperWhite, fExtendGamut };
 
 		bool bSuccess = _Hook_FXSetPSFloat(a_this, lumaParamsName, &lumaParams, 1);
 		return bSuccess;

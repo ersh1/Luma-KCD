@@ -75,7 +75,7 @@ namespace Hooks
 		return pTex;
 	}
 
-	bool Hooks::Hook_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::CTexture* a_pTarget, RE::SD3DSurface* a_pDepthTarget, bool a_bClearOnResolve, int a_nCMSide, bool a_bScreenVP, uint32_t a_nTileCount)
+	bool Hooks::Hook_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::CTexture* a_pTarget, RE::SDepthTexture* a_pDepthTarget, bool a_bClearOnResolve, int a_nCMSide, bool a_bScreenVP, uint32_t a_nTileCount)
 	{
 		// replace with ours
 		return _Hook_FX_PushRenderTarget(a_this, a_nTarget, ptexTonemapTarget, a_pDepthTarget, a_bClearOnResolve, a_nCMSide, a_bScreenVP, a_nTileCount);
@@ -157,6 +157,20 @@ namespace Hooks
 			pSrc[3] = 0.f;
 			return true;
 		}
+
+		return bResult;
+	}
+
+	bool Hooks::Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::D3DSurface* a_pTarget, RE::SDepthTexture* a_pDepthTarget, uint32_t a_nTileCount)
+	{
+		bool bResult = _Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget(a_this, a_nTarget, a_pTarget, a_pDepthTarget, a_nTileCount);
+
+		// clear the target that was just pushed
+
+		a_this->RT_SetViewport(0, 0, a_this->GetWidth(), a_this->GetHeight());
+
+		RE::ColorF clearColor = { 0.f, 0.f, 0.f, 0.f };
+		a_this->EF_ClearBuffers(FRT_CLEAR_COLOR | FRT_CLEAR_IMMEDIATE, &clearColor);
 
 		return bResult;
 	}

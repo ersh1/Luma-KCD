@@ -227,6 +227,12 @@ namespace Hooks
 					_Hook_SetShaderParameters = dku::Hook::write_call(Offsets::baseAddress + 0x550AFE, Hook_SetShaderParameters);
 				}
 			}
+
+			// Shadow map fix
+			{
+				// Hook adds a call to clear the freshly pushed render target, fixing a vanilla bug
+				_Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget = dku::Hook::write_call(Offsets::baseAddress + 0x2C3772, Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget);
+			}
 		}
 
 	private:
@@ -234,10 +240,11 @@ namespace Hooks
 		static bool          Hook_CreateDevice(RE::DeviceInfo* a_deviceInfo, bool a_bWindowed, int32_t a_width, int32_t a_height, int32_t a_backbufferWidth, int32_t a_backbufferHeight, int32_t a_zbpp);
 		static bool          Hook_CreateRenderTarget(const char* a_szTexName, RE::CTexture*& a_pTex, int a_iWidth, int a_iHeight, bool a_bUseAlpha, bool a_bMipMaps, RE::ETEX_Format a_eTF, int a_nCustomID, int a_nFlags);
 		static RE::CTexture* Hook_CreateTextureObject(const char* a_name, uint32_t a_nWidth, uint32_t a_nHeight, int a_nDepth, RE::ETEX_Type a_eTT, uint32_t a_nFlags, RE::ETEX_Format a_eTF, int a_nCustomID);
-		static bool          Hook_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::CTexture* a_pTarget, RE::SD3DSurface* a_pDepthTarget, bool a_bClearOnResolve, int a_nCMSide, bool a_bScreenVP, uint32_t a_nTileCount);
+		static bool          Hook_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::CTexture* a_pTarget, RE::SDepthTexture* a_pDepthTarget, bool a_bClearOnResolve, int a_nCMSide, bool a_bScreenVP, uint32_t a_nTileCount);
 		static bool          Hook_FXSetPSFloat(RE::CShader* a_this, const RE::CCryNameR& a_nameParam, RE::Vec4* a_fParams, int a_nParams);
 		static bool          Hook_mfParseParamComp(void* a_this, int comp, RE::SCGParam* pCurParam, const char* szSemantic, char* params, const char* szAnnotations, void* FXParams, void* ef, uint32_t nParamFlags, RE::EHWShaderClass eSHClass, bool bExpressionOperand);
 		static bool          Hook_SetShaderParameters(float*& pSrc, RE::ECGParam paramType);
+		static bool          Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::D3DSurface* a_pTarget, RE::SDepthTexture* a_pDepthTarget, uint32_t a_nTileCount);
 
 		static inline std::add_pointer_t<decltype(Hook_FlashRenderInternal)> _Hook_FlashRenderInternal;
 		static inline std::add_pointer_t<decltype(Hook_CreateDevice)>        _Hook_CreateDevice;
@@ -247,6 +254,7 @@ namespace Hooks
 		static inline std::add_pointer_t<decltype(Hook_FXSetPSFloat)>        _Hook_FXSetPSFloat;
 		static inline std::add_pointer_t<decltype(Hook_mfParseParamComp)>    _Hook_mfParseParamComp;
 		static inline std::add_pointer_t<decltype(Hook_SetShaderParameters)> _Hook_SetShaderParameters;
+		static inline std::add_pointer_t<decltype(Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget)> _Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget;
 
 		static uintptr_t            GetTonemapTargetRT() { return reinterpret_cast<uintptr_t>(ptexTonemapTarget); }
 		static uintptr_t            GetPostAATargetRT() { return reinterpret_cast<uintptr_t>(ptexPostAATarget); }

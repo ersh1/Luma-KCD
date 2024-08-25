@@ -32,8 +32,8 @@ namespace Settings
 	{
 		static std::once_flag ConfigInit;
 		std::call_once(ConfigInit, [&]() {
-			config.Bind(PeakBrightness.value, PeakBrightness.defaultValue);
-			config.Bind(GamePaperWhite.value, GamePaperWhite.defaultValue);
+			config.Bind(PeakLuminance.value, PeakLuminance.defaultValue);
+			config.Bind(LuminanceMultiplier.value, LuminanceMultiplier.defaultValue);
 			config.Bind(UILuminance.value, UILuminance.defaultValue);
 			config.Bind(ExtendGamut.value, ExtendGamut.defaultValue);
 			config.Bind(ExtendGamutTarget.value, ExtendGamutTarget.defaultValue);
@@ -131,9 +131,9 @@ namespace Settings
 		const auto currentPos = ImGui::GetWindowPos();
 		ImGui::SetWindowPos(ImVec2(io.DisplaySize.x / 3, currentPos.y), ImGuiCond_FirstUseEver);
 
-		DrawReshadeIntSlider(PeakBrightness);
-		DrawReshadeIntSlider(GamePaperWhite);
-		DrawReshadeIntSlider(UILuminance);
+		DrawReshadeFloatSlider(PeakLuminance);
+		DrawReshadeFloatSlider(LuminanceMultiplier);
+		DrawReshadeFloatSlider(UILuminance);
 		DrawReshadeFloatSlider(ExtendGamut);
 		DrawReshadeIntSlider(ExtendGamutTarget);
     }

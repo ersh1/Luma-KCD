@@ -62,38 +62,35 @@ namespace Settings
     class Main : public DKUtil::model::Singleton<Main>
     {
     public:
-		IntSlider PeakBrightness{
-			"Peak Brightness",
-			"Sets the peak brightness in HDR modes."
-				"\nThe value should match your display's peak brightness."
+		FloatSlider PeakLuminance{
+			"Peak Luminance",
+			"Sets the peak luminance in HDR."
+				"\nThe value should match your display's peak luminance."
 				"\n"
-				"\nThis does not affect the game's average brightness.",
-			"PeakBrightness", "HDR",
-			1000,
-			80,
-			10000
+				"\nThis does not affect the game's average luminance.",
+			"PeakLuminance", "HDR",
+			1000.f,
+			200.f,
+			10000.f
 		};
-		IntSlider GamePaperWhite{
-			"Game Paper White",
-			"Sets the in-game brightness of white in HDR modes."
-				"\nThis setting represents the brightness of white paper (100\% diffuse white) in-game."
-				"\n"
-				"\nThe default value is 203.",
-			"GamePaperWhite", "HDR",
-			203, // ITU reference default is 203
-			80,
-			500
+		FloatSlider LuminanceMultiplier{
+			"Luminance Multiplier",
+			"idk",
+			"LuminanceMultiplier", "HDR",
+			1.f,
+			0.5f,
+			2.f
 		};
-		IntSlider UILuminance{
+		FloatSlider UILuminance{
 			"UI Luminance",
 			"Sets the user-interface brightness in HDR modes."
 				"\nThis setting represents the brightness of UI elements."
 				"\n"
 				"\nThe default value is 203.",
 			"UILuminance", "HDR",
-			203, // ITU reference default is 203
-			80,
-			500
+			203.f, // ITU reference default is 203
+			80.f,
+			500.f
 		};
 		FloatSlider ExtendGamut{
 			"HDR Saturation",

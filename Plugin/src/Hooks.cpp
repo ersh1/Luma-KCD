@@ -102,17 +102,17 @@ namespace Hooks
 		const auto settings = Settings::Main::GetSingleton();
 
 		// max luminance
-		float fMaxLuminance = settings->PeakBrightness.GetValue();
+		float fMaxLuminance = settings->PeakLuminance.GetValue();
 		float fMaxLuminanceHalf = fMaxLuminance * 0.5f;
 		fMaxLuminance = NitsToPQ(fMaxLuminance);
 		fMaxLuminanceHalf = NitsToPQ(fMaxLuminanceHalf);
 
 		// game paperwhite
-		RE::HDRSetupParams hdrParams;
-		Offsets::C3DEngine_GetHDRSetupParams(nullptr, hdrParams);
+		//RE::HDRSetupParams hdrParams;
+		//Offsets::C3DEngine_GetHDRSetupParams(nullptr, hdrParams);
 
-		float fPaperWhite = settings->GamePaperWhite.GetValue();
-		fPaperWhite /= std::powf(10.f, 0.034607309f + 0.7577371f * log10(hdrParams.HDRFilmCurve.w * 203.f));
+		float fPaperWhite = settings->LuminanceMultiplier.GetValue();
+		//fPaperWhite /= std::powf(10.f, 0.034607309f + 0.7577371f * log10(hdrParams.HDRFilmCurve.w * 203.f));
 
 		// extend gamut
 		float fExtendGamut = settings->ExtendGamut.GetValue();

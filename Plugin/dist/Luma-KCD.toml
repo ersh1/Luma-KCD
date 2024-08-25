@@ -1,6 +1,6 @@
 [HDR]
 ExtendGamut = 10.0
-GamePaperWhite = 203
-PeakBrightness = 1000
-UILuminance = 203
+LuminanceMultiplier = 1.0
+PeakLuminance = 1000.0
+UILuminance = 203.0
 ExtendGamutTarget = 0

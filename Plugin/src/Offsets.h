@@ -14,8 +14,8 @@ public:
 	static inline tSD3DPostEffectsUtils_CreateRenderTarget SD3DPostEffectsUtils_CreateRenderTarget;
 	static inline tCTexture_CreateTextureObject            CTexture_CreateTextureObject;*/
 
-	using tC3DEngine_GetHDRSetupParams = void (*)(void* a_unused, RE::HDRSetupParams& a_pParams);
-	static inline tC3DEngine_GetHDRSetupParams C3DEngine_GetHDRSetupParams;
+	//using tC3DEngine_GetHDRSetupParams = void (*)(void* a_unused, RE::HDRSetupParams& a_pParams);
+	//static inline tC3DEngine_GetHDRSetupParams C3DEngine_GetHDRSetupParams;
 
 	static void Init()
 	{
@@ -26,6 +26,6 @@ public:
 		/*SD3DPostEffectsUtils_CreateRenderTarget = reinterpret_cast<tSD3DPostEffectsUtils_CreateRenderTarget>(baseAddress + 0x802F04);
 		CTexture_CreateTextureObject = reinterpret_cast<tCTexture_CreateTextureObject>(baseAddress + 0x2DE22C);*/
 
-		C3DEngine_GetHDRSetupParams = reinterpret_cast<tC3DEngine_GetHDRSetupParams>(baseAddress + 0x7FCA94);
+		//C3DEngine_GetHDRSetupParams = reinterpret_cast<tC3DEngine_GetHDRSetupParams>(baseAddress + 0x7FCA94);
 	}
 };

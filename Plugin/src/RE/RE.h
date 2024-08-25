@@ -609,12 +609,12 @@ namespace RE
 		uintptr_t m_nID;
 	};
 
-	struct HDRSetupParams
-	{
-		Vec4 HDRFilmCurve;
-		Vec4 HDRBloomColor;
-		Vec4 HDRColorBalance;  // Vec4(fHDRBloomAmount * 0.3f, fHDRBloomAmount * 0.3f, fHDRBloomAmount * 0.3f, fGrainAmount); before being sent to the shader, x, y, z are multiplied by 0.125f
-		Vec4 HDREyeAdaptation;
-		Vec4 HDREyeAdaptationLegacy;
-	};
+//	struct HDRSetupParams
+//	{
+//		Vec4 HDRFilmCurve;
+//		Vec4 HDRBloomColor;
+//		Vec4 HDRColorBalance;  // Vec4(fHDRBloomAmount * 0.3f, fHDRBloomAmount * 0.3f, fHDRBloomAmount * 0.3f, fGrainAmount); before being sent to the shader, x, y, z are multiplied by 0.125f
+//		Vec4 HDREyeAdaptation;
+//		Vec4 HDREyeAdaptationLegacy;
+//	};
 }

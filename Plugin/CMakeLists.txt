@@ -52,6 +52,8 @@ add_library(
 		vcpkg.json
 )
 
+set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".asi")
+
 # include dir
 target_include_directories(
 	${PROJECT_NAME}

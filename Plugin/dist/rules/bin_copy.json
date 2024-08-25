@@ -2,7 +2,7 @@
     {
         "action": "copy",
         "params": [
-            "{dist}\\{project_name}.dll",
+            "{dist}\\{project_name}.asi",
             "{target_base}\\{project_name}.asi"
         ]
     },

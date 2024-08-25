@@ -48,9 +48,9 @@ namespace Settings
 		float  defaultValue;
 		float sliderMin;
 		float sliderMax;
-		std::string suffix = "";
+		std::string suffix;
 
-		FloatSlider(const std::string& a_name, const std::string& a_description, const std::string& a_key, const std::string& a_section, float a_defaultValue, float a_sliderMin, float a_sliderMax, std::string_view a_suffix = "") :
+		FloatSlider(const std::string& a_name, const std::string& a_description, const std::string& a_key, const std::string& a_section, float a_defaultValue, float a_sliderMin, float a_sliderMax, std::string a_suffix) :
 			Setting{ a_name, a_description }, value{ a_key, a_section }, defaultValue(a_defaultValue), sliderMin(a_sliderMin), sliderMax(a_sliderMax), suffix(a_suffix) {}
 
 		bool IsDefault() const override { return value.get_data() == defaultValue; }
@@ -71,7 +71,8 @@ namespace Settings
 			"PeakLuminance", "HDR",
 			1000.f,
 			200.f,
-			10000.f
+			10000.f,
+			"%.0f nits"
 		};
 		FloatSlider LuminanceMultiplier{
 			"Luminance Multiplier",
@@ -79,7 +80,8 @@ namespace Settings
 			"LuminanceMultiplier", "HDR",
 			1.f,
 			0.5f,
-			2.f
+			2.f,
+			"%.2f"
 		};
 		FloatSlider UILuminance{
 			"UI Luminance",
@@ -90,7 +92,8 @@ namespace Settings
 			"UILuminance", "HDR",
 			203.f, // ITU reference default is 203
 			80.f,
-			500.f
+			500.f,
+			"%.0f nits"
 		};
 		FloatSlider ExtendGamut{
 			"HDR Saturation",
@@ -103,7 +106,7 @@ namespace Settings
 			10.f,
 			0.f,
 			100.f,
-			"%"
+			"%.0f%%"
 		};
 		IntSlider ExtendGamutTarget{
 			"HDR Saturation Type",

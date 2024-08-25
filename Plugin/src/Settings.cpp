@@ -92,7 +92,7 @@ namespace Settings
     {
 		bool result = false;
 		float tempValue = *a_slider.value;
-		if (ImGui::SliderFloat(a_slider.name.c_str(), &tempValue, a_slider.sliderMin, a_slider.sliderMax, "%.0f")) {
+		if (ImGui::SliderFloat(a_slider.name.c_str(), &tempValue, a_slider.sliderMin, a_slider.sliderMax, a_slider.suffix.c_str())) {
 			*a_slider.value = tempValue;
 			Save();
 			result = true;

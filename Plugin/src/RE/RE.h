@@ -581,7 +581,7 @@ namespace RE
 
 		// ...
 
-		ECGP_LumaUILuminance = 0xFF
+		ECGP_LumaParamaters = 0xFF
 	};
 
 	struct SParamDB

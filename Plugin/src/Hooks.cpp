@@ -111,7 +111,7 @@ namespace Hooks
 		//RE::HDRSetupParams hdrParams;
 		//Offsets::C3DEngine_GetHDRSetupParams(nullptr, hdrParams);
 
-		float fPaperWhite = settings->LuminanceMultiplier.GetValue();
+		float fLuminanceMultiplier = settings->LuminanceMultiplier.GetValue();
 		//fPaperWhite /= std::powf(10.f, 0.034607309f + 0.7577371f * log10(hdrParams.HDRFilmCurve.w * 203.f));
 
 		// extend gamut
@@ -122,7 +122,7 @@ namespace Hooks
 		// store gamut target as sign
 		fExtendGamut *= float(iExtendGamutTarget * 2 - 1);
 
-		RE::Vec4 lumaParams = { fMaxLuminance, fMaxLuminanceHalf, fPaperWhite, fExtendGamut };
+		RE::Vec4 lumaParams = { fMaxLuminance, fMaxLuminanceHalf, fLuminanceMultiplier, fExtendGamut };
 
 		bool bSuccess = _Hook_FXSetPSFloat(a_this, lumaParamsName, &lumaParams, 1);
 		return bSuccess;
@@ -134,8 +134,8 @@ namespace Hooks
 		bool bResult = _Hook_mfParseParamComp(a_this, comp, pCurParam, szSemantic, params, szAnnotations, FXParams, ef, nParamFlags, eSHClass, bExpressionOperand);
 
 		// our param will fail to parse fully because there's no relevant entry in the sParams array, so finish it up manually
-		if (!bResult && pCurParam && stricmp (szSemantic, "PB_SFLumaUILuminance") == 0) {
-			pCurParam->m_eCGParamType = RE::ECGParam::ECGP_LumaUILuminance;
+		if (!bResult && pCurParam && stricmp (szSemantic, "PB_SFLumaParamaters") == 0) {
+			pCurParam->m_eCGParamType = RE::ECGParam::ECGP_LumaParamaters;
 			return true; 
 		}
 
@@ -148,13 +148,21 @@ namespace Hooks
 		bool bResult = _Hook_SetShaderParameters(pSrc, paramType);
 
 		// our enum value will fail to be recognized here; handle it manually
-		if (!bResult && paramType == RE::ECGParam::ECGP_LumaUILuminance) {
+		if (!bResult && paramType == RE::ECGParam::ECGP_LumaParamaters) {
 			const auto settings = Settings::Main::GetSingleton();
-			float      fUILuminance = settings->UILuminance.GetValue();
+
+			float fUILuminance = settings->UILuminance.GetValue();
+			float fLuminanceMultiplier = settings->LuminanceMultiplier.GetValue();
+			float fMaxLuminance = settings->PeakLuminance.GetValue();
+			float fMaxLuminanceHalf = fMaxLuminance * 0.5f;
+
+			fMaxLuminance = NitsToPQ(fMaxLuminance);
+			fMaxLuminanceHalf = NitsToPQ(fMaxLuminanceHalf);
+
 			pSrc[0] = fUILuminance / 80.f;
-			pSrc[1] = 0.f;
-			pSrc[2] = 0.f;
-			pSrc[3] = 0.f;
+			pSrc[1] = fLuminanceMultiplier;
+			pSrc[2] = fMaxLuminance;
+			pSrc[3] = fMaxLuminanceHalf;
 			return true;
 		}
 

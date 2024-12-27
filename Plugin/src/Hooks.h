@@ -76,14 +76,44 @@ namespace Hooks
 	public:
 		static void Hook()
 		{
-			// Hook CD3D9Renderer::FlashRenderInternal because DXGI_SWAP_EFFECT_FLIP_DISCARD unbinds backbuffer during Present. So we need to call OMSetRenderTargets to bind it again every frame.
+			// Hook Present() to rebind backbuffer every frame because DXGI_SWAP_EFFECT_FLIP_DISCARD unbinds it after Present()
 			{
-				uintptr_t vtable = Offsets::baseAddress + 0x215B148;
-				auto      Hook = dku::Hook::AddVMTHook(&vtable, 0x17B, FUNC_INFO(Hook_FlashRenderInternal));
+				struct Patch : Xbyak::CodeGenerator
+				{
+					Patch(uintptr_t a_addr)
+					{
+						// call our function
+						mov(rax, a_addr);
+						call(rax);
+					}
+				};
 
-				using FlashRenderInternal_t = std::add_pointer_t<void(RE::CD3D9Renderer*, void*, bool, bool)>;
-				_Hook_FlashRenderInternal = Hook->GetOldFunction<FlashRenderInternal_t>();
-				Hook->Enable();
+				Patch patch(reinterpret_cast<uintptr_t>(Hook_Present));
+				patch.ready();
+
+				auto offset = std::make_pair(0x27E, 0x284);
+				auto hook = dku::Hook::AddASMPatch(Offsets::baseAddress + 0x2A4D08, offset, &patch);
+				hook->Enable();
+			}
+
+			// Same as above, but a different call to Present() for UI only
+			{
+				struct Patch : Xbyak::CodeGenerator
+				{
+					Patch(uintptr_t a_addr)
+					{
+						// call our function
+						mov(rax, a_addr);
+						call(rax);
+					}
+				};
+
+				Patch patch(reinterpret_cast<uintptr_t>(Hook_Present_UIOnly));
+				patch.ready();
+
+				auto offset = std::make_pair(0x3B, 0x41);
+				auto hook = dku::Hook::AddASMPatch(Offsets::baseAddress + 0x2A51EC, offset, &patch);
+				hook->Enable();
 			}
 
 			// Hook swapchain creation and set colorspace
@@ -266,7 +296,10 @@ namespace Hooks
 		}
 
 	private:
-		static void          Hook_FlashRenderInternal(RE::CD3D9Renderer* a_this, void* pPlayer, bool bStereo, bool bDoRealRender);
+		static HRESULT       OnPresent(IDXGISwapChain* a_pSwapChain, uint32_t a_syncInterval, uint32_t a_presentFlags);
+
+		static HRESULT       Hook_Present(IDXGISwapChain* a_pSwapChain, uint32_t a_syncInterval, uint32_t a_presentFlags);
+		static HRESULT       Hook_Present_UIOnly(IDXGISwapChain* a_pSwapChain, uint32_t a_syncInterval, uint32_t a_presentFlags);
 		static bool          Hook_CreateDevice(RE::DeviceInfo* a_deviceInfo, bool a_bWindowed, int32_t a_width, int32_t a_height, int32_t a_backbufferWidth, int32_t a_backbufferHeight, int32_t a_zbpp);
 		static bool          Hook_CreateRenderTarget(const char* a_szTexName, RE::CTexture*& a_pTex, int a_iWidth, int a_iHeight, bool a_bUseAlpha, bool a_bMipMaps, RE::ETEX_Format a_eTF, int a_nCustomID, int a_nFlags);
 		static RE::CTexture* Hook_CreateTextureObject(const char* a_name, uint32_t a_nWidth, uint32_t a_nHeight, int a_nDepth, RE::ETEX_Type a_eTT, uint32_t a_nFlags, RE::ETEX_Format a_eTF, int a_nCustomID);
@@ -275,7 +308,6 @@ namespace Hooks
 		static bool          Hook_SetShaderParameters(float*& pSrc, RE::ECGParam paramType);
 		static bool          Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::D3DSurface* a_pTarget, RE::SDepthTexture* a_pDepthTarget, uint32_t a_nTileCount);
 
-		static inline std::add_pointer_t<decltype(Hook_FlashRenderInternal)>                          _Hook_FlashRenderInternal;
 		static inline std::add_pointer_t<decltype(Hook_CreateDevice)>                                 _Hook_CreateDevice;
 		static inline std::add_pointer_t<decltype(Hook_CreateRenderTarget)>                           _Hook_CreateRenderTarget;
 		static inline std::add_pointer_t<decltype(Hook_CreateTextureObject)>                          _Hook_CreateTextureObject;

@@ -22,14 +22,42 @@ namespace Hooks
 		return a_renderer->m_pDeviceContext;
 	}
 
-	void Hooks::Hook_FlashRenderInternal(RE::CD3D9Renderer* a_this, void* pPlayer, bool bStereo, bool bDoRealRender)
+	HRESULT Hooks::OnPresent(IDXGISwapChain* a_pSwapChain, uint32_t a_syncInterval, uint32_t a_presentFlags)
 	{
-		if (bDoRealRender) {
-			auto context = GetDeviceContext(a_this);
-			context->OMSetRenderTargets(1, &a_this->m_pBackBuffer, a_this->m_pNativeZSurface);
+		ID3D11DeviceContext*    ctx = nullptr;
+		ID3D11RenderTargetView* v1 = nullptr;
+		ID3D11DepthStencilView* v2 = nullptr;
+
+		ID3D11Device* dev;
+		if (SUCCEEDED(a_pSwapChain->GetDevice(__uuidof(ID3D11Device), (void**)&dev))) {
+			dev->GetImmediateContext(&ctx);
+			ctx->OMGetRenderTargets(1, &v1, &v2);
 		}
 
-		_Hook_FlashRenderInternal(a_this, pPlayer, bStereo, bDoRealRender);
+		HRESULT r = a_pSwapChain->Present(a_syncInterval, a_presentFlags);
+
+		if (ctx != nullptr) {
+			ctx->OMSetRenderTargets(1, &v1, v2);
+			if (v1 != nullptr) {
+				v1->Release();
+			}
+			if (v2 != nullptr) {
+				v2->Release();
+			}
+			ctx->Release();
+		}
+
+		return r;
+	}
+
+	HRESULT Hooks::Hook_Present(IDXGISwapChain* a_pSwapChain, uint32_t a_syncInterval, uint32_t a_presentFlags)
+	{
+		return OnPresent(a_pSwapChain, a_syncInterval, a_presentFlags);
+	}
+
+	HRESULT Hooks::Hook_Present_UIOnly(IDXGISwapChain* a_pSwapChain, uint32_t a_syncInterval, uint32_t a_presentFlags)
+	{
+		return OnPresent(a_pSwapChain, a_syncInterval, a_presentFlags);
 	}
 
 	bool Hooks::Hook_CreateDevice(RE::DeviceInfo* a_deviceInfo, bool a_bWindowed, int32_t a_width, int32_t a_height, int32_t a_backbufferWidth, int32_t a_backbufferHeight, int32_t a_zbpp)
@@ -80,9 +108,7 @@ namespace Hooks
 		Y = std::powf(Y / 10000.f, 0.1593017578125f);
 
 		// E'
-		return std::powf((0.8359375f + 18.8515625f * Y)
-		               / (1.f        + 18.6875f    * Y)
-		       , 78.84375f);
+		return std::powf((0.8359375f + 18.8515625f * Y) / (1.f + 18.6875f * Y), 78.84375f);
 	}
 
 	bool Hooks::Hook_FXSetPSFloat(RE::CShader* a_this, const RE::CCryNameR& a_nameParam, RE::Vec4* a_fParams, int a_nParams)

@@ -33,6 +33,13 @@ namespace Hooks
 				dku::Hook::WriteImm(Offsets::baseAddress + 0x8029DE, format);   // $PrevBackBuffer1
 				dku::Hook::WriteImm(Offsets::baseAddress + 0x130E408, format);  // $PrevBackBuffer0_R
 				dku::Hook::WriteImm(Offsets::baseAddress + 0x130E433, format);  // $PrevBackBuffer1_R
+
+				dku::Hook::WriteImm(Offsets::baseAddress + 0x801A55, format);   // $ColorGradingMergeLayer0
+				dku::Hook::WriteImm(Offsets::baseAddress + 0x801A96, format);   // $ColorGradingMergeLayer1
+
+				dku::Hook::WriteImm(Offsets::baseAddress + 0xB128F4, format);  // $HDRTempBloom0
+				dku::Hook::WriteImm(Offsets::baseAddress + 0xB1292B, format);  // $HDRTempBloom1
+				dku::Hook::WriteImm(Offsets::baseAddress + 0xB12969, format);  // $HDRFinalBloom
 			}
 
 			// Patch DXGI_FORMAT RGBA8 to RGBA16F

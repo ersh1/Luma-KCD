@@ -95,7 +95,28 @@ namespace Hooks
 
 			// Replace with our new RTs
 			{
-				_Hook_FX_PushRenderTarget = dku::Hook::write_call(Offsets::baseAddress + 0x130A5F4, Hook_FX_PushRenderTarget);  // use TonemapTarget as target for tonemapper
+				// Use TonemapTarget instead of SceneDiffuse
+				{
+					struct Patch : Xbyak::CodeGenerator
+					{
+						Patch(uintptr_t a_addr)
+						{
+							push(rax);
+
+							mov(rax, ptr[a_addr]);
+							mov(r14, rax);
+
+							pop(rax);
+						}
+					};
+
+					Patch patch(reinterpret_cast<uintptr_t>(&ptexTonemapTarget));
+					patch.ready();
+
+					auto offset = std::make_pair(0xCB, 0xD2);
+					auto hook = dku::Hook::AddASMPatch(Offsets::baseAddress + 0x7FC6D8, offset, &patch);
+					hook->Enable();
+				}
 
 				// Read TonemapTarget instead of SceneDiffuse
 				{
@@ -103,14 +124,16 @@ namespace Hooks
 					{
 						Patch(uintptr_t a_addr)
 						{
-							// call our function
-							mov(rax, a_addr);
-							call(rax);
+							push(rax);
+
+							mov(rax, ptr[a_addr]);
 							mov(rdi, rax);
+
+							pop(rax);
 						}
 					};
 
-					Patch patch(reinterpret_cast<uintptr_t>(GetTonemapTargetRT));
+					Patch patch(reinterpret_cast<uintptr_t>(&ptexTonemapTarget));
 					patch.ready();
 
 					auto offset = std::make_pair(0x69, 0x70);
@@ -126,16 +149,14 @@ namespace Hooks
 						{
 							push(rax);
 
-							// call our function
-							mov(rax, a_addr);
-							call(rax);
+							mov(rax, ptr[a_addr]);
 							mov(rbx, rax);
 
 							pop(rax);
 						}
 					};
 
-					Patch patch(reinterpret_cast<uintptr_t>(GetPostAATargetRT));
+					Patch patch(reinterpret_cast<uintptr_t>(&ptexPostAATarget));
 					patch.ready();
 
 					auto offset = std::make_pair(0x25, 0x2C);
@@ -149,14 +170,16 @@ namespace Hooks
 					{
 						Patch(uintptr_t a_addr)
 						{
-							// call our function
-							mov(rax, a_addr);
-							call(rax);
+							push(rax);
+
+							mov(rax, ptr[a_addr]);
 							mov(rbx, rax);
+
+							pop(rax);
 						}
 					};
 
-					Patch patch(reinterpret_cast<uintptr_t>(GetPostAATargetRT));
+					Patch patch(reinterpret_cast<uintptr_t>(&ptexPostAATarget));
 					patch.ready();
 
 					auto offset = std::make_pair(0xB0D0CE, 0xB0D0D5);
@@ -170,13 +193,11 @@ namespace Hooks
 					{
 						Patch(uintptr_t a_addr)
 						{
-							// call our function
-							mov(rax, a_addr);
-							call(rax);
+							mov(rax, ptr[a_addr]);
 						}
 					};
 
-					Patch patch(reinterpret_cast<uintptr_t>(GetNormalCopyTargetRT));
+					Patch patch(reinterpret_cast<uintptr_t>(&ptexNormalCopyTarget));
 					patch.ready();
 
 					auto offset = std::make_pair(0x6C, 0x73);
@@ -190,14 +211,16 @@ namespace Hooks
 					{
 						Patch(uintptr_t a_addr)
 						{
-							// call our function
-							mov(rax, a_addr);
-							call(rax);
+							push(rax);
+
+							mov(rax, ptr[a_addr]);
 							mov(rcx, rax);
+
+							pop(rax);
 						}
 					};
 
-					Patch patch(reinterpret_cast<uintptr_t>(GetNormalCopyTargetRT));
+					Patch patch(reinterpret_cast<uintptr_t>(&ptexNormalCopyTarget));
 					patch.ready();
 
 					auto offset = std::make_pair(0x69B, 0x6A2);
@@ -240,25 +263,20 @@ namespace Hooks
 		static bool          Hook_CreateDevice(RE::DeviceInfo* a_deviceInfo, bool a_bWindowed, int32_t a_width, int32_t a_height, int32_t a_backbufferWidth, int32_t a_backbufferHeight, int32_t a_zbpp);
 		static bool          Hook_CreateRenderTarget(const char* a_szTexName, RE::CTexture*& a_pTex, int a_iWidth, int a_iHeight, bool a_bUseAlpha, bool a_bMipMaps, RE::ETEX_Format a_eTF, int a_nCustomID, int a_nFlags);
 		static RE::CTexture* Hook_CreateTextureObject(const char* a_name, uint32_t a_nWidth, uint32_t a_nHeight, int a_nDepth, RE::ETEX_Type a_eTT, uint32_t a_nFlags, RE::ETEX_Format a_eTF, int a_nCustomID);
-		static bool          Hook_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::CTexture* a_pTarget, RE::SDepthTexture* a_pDepthTarget, bool a_bClearOnResolve, int a_nCMSide, bool a_bScreenVP, uint32_t a_nTileCount);
 		static bool          Hook_FXSetPSFloat(RE::CShader* a_this, const RE::CCryNameR& a_nameParam, RE::Vec4* a_fParams, int a_nParams);
 		static bool          Hook_mfParseParamComp(void* a_this, int comp, RE::SCGParam* pCurParam, const char* szSemantic, char* params, const char* szAnnotations, void* FXParams, void* ef, uint32_t nParamFlags, RE::EHWShaderClass eSHClass, bool bExpressionOperand);
 		static bool          Hook_SetShaderParameters(float*& pSrc, RE::ECGParam paramType);
 		static bool          Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::D3DSurface* a_pTarget, RE::SDepthTexture* a_pDepthTarget, uint32_t a_nTileCount);
 
-		static inline std::add_pointer_t<decltype(Hook_FlashRenderInternal)> _Hook_FlashRenderInternal;
-		static inline std::add_pointer_t<decltype(Hook_CreateDevice)>        _Hook_CreateDevice;
-		static inline std::add_pointer_t<decltype(Hook_CreateRenderTarget)> _Hook_CreateRenderTarget;
-		static inline std::add_pointer_t<decltype(Hook_CreateTextureObject)> _Hook_CreateTextureObject;
-		static inline std::add_pointer_t<decltype(Hook_FX_PushRenderTarget)> _Hook_FX_PushRenderTarget;
-		static inline std::add_pointer_t<decltype(Hook_FXSetPSFloat)>        _Hook_FXSetPSFloat;
-		static inline std::add_pointer_t<decltype(Hook_mfParseParamComp)>    _Hook_mfParseParamComp;
-		static inline std::add_pointer_t<decltype(Hook_SetShaderParameters)> _Hook_SetShaderParameters;
+		static inline std::add_pointer_t<decltype(Hook_FlashRenderInternal)>                          _Hook_FlashRenderInternal;
+		static inline std::add_pointer_t<decltype(Hook_CreateDevice)>                                 _Hook_CreateDevice;
+		static inline std::add_pointer_t<decltype(Hook_CreateRenderTarget)>                           _Hook_CreateRenderTarget;
+		static inline std::add_pointer_t<decltype(Hook_CreateTextureObject)>                          _Hook_CreateTextureObject;
+		static inline std::add_pointer_t<decltype(Hook_FXSetPSFloat)>                                 _Hook_FXSetPSFloat;
+		static inline std::add_pointer_t<decltype(Hook_mfParseParamComp)>                             _Hook_mfParseParamComp;
+		static inline std::add_pointer_t<decltype(Hook_SetShaderParameters)>                          _Hook_SetShaderParameters;
 		static inline std::add_pointer_t<decltype(Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget)> _Hook_FX_DeferredShadowMaskGen_FX_PushRenderTarget;
 
-		static uintptr_t            GetTonemapTargetRT() { return reinterpret_cast<uintptr_t>(ptexTonemapTarget); }
-		static uintptr_t            GetPostAATargetRT() { return reinterpret_cast<uintptr_t>(ptexPostAATarget); }
-		static uintptr_t            GetNormalCopyTargetRT() { return reinterpret_cast<uintptr_t>(ptexNormalCopyTarget); }
 		static inline RE::CTexture* ptexTonemapTarget;
 		static inline RE::CTexture* ptexPostAATarget;
 		static inline RE::CTexture* ptexNormalCopyTarget;

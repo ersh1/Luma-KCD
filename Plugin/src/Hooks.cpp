@@ -75,12 +75,6 @@ namespace Hooks
 		return pTex;
 	}
 
-	bool Hooks::Hook_FX_PushRenderTarget(RE::CD3D9Renderer* a_this, int a_nTarget, RE::CTexture* a_pTarget, RE::SDepthTexture* a_pDepthTarget, bool a_bClearOnResolve, int a_nCMSide, bool a_bScreenVP, uint32_t a_nTileCount)
-	{
-		// replace with ours
-		return _Hook_FX_PushRenderTarget(a_this, a_nTarget, ptexTonemapTarget, a_pDepthTarget, a_bClearOnResolve, a_nCMSide, a_bScreenVP, a_nTileCount);
-	}
-
 	float NitsToPQ(float Y)
 	{
 		Y = std::powf(Y / 10000.f, 0.1593017578125f);

@@ -48,6 +48,21 @@ namespace Hooks
 				dku::Hook::WriteImm(Offsets::baseAddress + 0x8E9D8A, format);  // Swapchain
 			}
 
+			// set cutscene fps to sys_MaxFPS
+			{
+				// WHGame.DLL+3F3E7D - BA 1E000000 - mov edx,0000001E  --> sets cutscene fps to 30
+				// we overwrite the asm at that address with a jump to the nearest code cave
+				// in the code cave we write the value of sys_maxFPS which is stored at [WHGame.DLL+2878D18] to edx instead of just 30
+				// then jump back
+
+				uint8_t jump_to_code_cave_asm[] = { 0xE9, 0xD3, 0xFC, 0xFF, 0xFF };      // jmp WHGame.DLL+3F3B55
+				uint8_t         code_cave_asm[] = { 0x8B, 0x15, 0xBD, 0x51, 0x48, 0x02,  // mov edx,[WHGame.DLL+2878D18]
+				                                    0xE9, 0x22, 0x03, 0x00, 0x00 };      // jmp WHGame.DLL+3F3E82
+
+				dku::Hook::WriteData(Offsets::baseAddress + 0x3F3E7D, reinterpret_cast<void*>(jump_to_code_cave_asm), sizeof(jump_to_code_cave_asm));  // hook (jump to code cave)
+				dku::Hook::WriteData(Offsets::baseAddress + 0x3F3B55, reinterpret_cast<void*>(code_cave_asm),         sizeof(code_cave_asm));          // code cave
+			}
+
 			// Patch DXGI_SWAP_EFFECT to DXGI_SWAP_EFFECT_FLIP_DISCARD
 			{
 				struct Patch : Xbyak::CodeGenerator

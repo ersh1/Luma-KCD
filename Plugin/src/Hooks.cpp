@@ -2,12 +2,14 @@
 
 #include "Settings.h"
 
+#include <cmath>
 #include <dxgi1_4.h>
 
+//(max - 1) / 100
 static const float MaxGamutExpansion[2] =
 {
-	0.0037935f,
-	0.0102255f
+	0.0037327730f,
+	0.0096761775f
 };
 
 namespace Hooks
@@ -103,14 +105,6 @@ namespace Hooks
 		return pTex;
 	}
 
-	float NitsToPQ(float Y)
-	{
-		Y = std::powf(Y / 10000.f, 0.1593017578125f);
-
-		// E'
-		return std::powf((0.8359375f + 18.8515625f * Y) / (1.f + 18.6875f * Y), 78.84375f);
-	}
-
 	bool Hooks::Hook_FXSetPSFloat(RE::CShader* a_this, const RE::CCryNameR& a_nameParam, RE::Vec4* a_fParams, int a_nParams)
 	{
 		// run original
@@ -123,9 +117,8 @@ namespace Hooks
 
 		// max luminance
 		float fMaxLuminance = settings->PeakLuminance.GetValue();
-		float fMaxLuminanceHalf = fMaxLuminance * 0.5f;
-		fMaxLuminance = NitsToPQ(fMaxLuminance);
-		fMaxLuminanceHalf = NitsToPQ(fMaxLuminanceHalf);
+		fMaxLuminance = std::log2f(fMaxLuminance);
+		float fLuminanceShoulderStart = fMaxLuminance * (std::log2f(300.f) / std::log2f(600.f));
 
 		// game paperwhite
 		//RE::HDRSetupParams hdrParams;
@@ -142,7 +135,7 @@ namespace Hooks
 		// store gamut target as sign
 		fExtendGamut *= float(iExtendGamutTarget * 2 - 1);
 
-		RE::Vec4 lumaParams = { fMaxLuminance, fMaxLuminanceHalf, fLuminanceMultiplier, fExtendGamut };
+		RE::Vec4 lumaParams = { fMaxLuminance, fLuminanceShoulderStart, fLuminanceMultiplier, fExtendGamut };
 
 		bool bSuccess = _Hook_FXSetPSFloat(a_this, lumaParamsName, &lumaParams, 1);
 		return bSuccess;
@@ -174,15 +167,13 @@ namespace Hooks
 			float fUILuminance = settings->UILuminance.GetValue();
 			float fLuminanceMultiplier = settings->LuminanceMultiplier.GetValue();
 			float fMaxLuminance = settings->PeakLuminance.GetValue();
-			float fMaxLuminanceHalf = fMaxLuminance * 0.5f;
-
-			fMaxLuminance = NitsToPQ(fMaxLuminance);
-			fMaxLuminanceHalf = NitsToPQ(fMaxLuminanceHalf);
+			fMaxLuminance = std::log2f(fMaxLuminance);
+			float fLuminanceShoulderStart = fMaxLuminance * (std::log2f(300.f) / std::log2f(600.f));
 
 			pSrc[0] = fUILuminance / 80.f;
 			pSrc[1] = fLuminanceMultiplier;
 			pSrc[2] = fMaxLuminance;
-			pSrc[3] = fMaxLuminanceHalf;
+			pSrc[3] = fLuminanceShoulderStart;
 			return true;
 		}
 

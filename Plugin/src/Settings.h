@@ -70,7 +70,7 @@ namespace Settings
 				"\nThis does not affect the game's average luminance.",
 			"PeakLuminance", "HDR",
 			1000.f,
-			200.f,
+			400.f,
 			10000.f,
 			"%.0f nits"
 		};
